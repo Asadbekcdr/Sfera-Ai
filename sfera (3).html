@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sfera AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
+:root{--bg:#0a0a0a;--s1:#111;--s2:#181818;--b1:#222;--b2:#2a2a2a;--t1:#f0f0f0;--t2:#888;--t3:#444;--green:#4e9a6f}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t1);font-family:'Sora',sans-serif;height:100vh;display:flex;overflow:hidden}
+.sidebar{width:260px;min-width:260px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column}
+.s-head{padding:18px 16px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px}
+.logo{width:32px;height:32px;border-radius:8px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.logo-name{font-size:15px;font-weight:600}
+.new-btn{margin:12px 12px 0;padding:9px 12px;background:transparent;border:1px solid var(--b2);border-radius:8px;color:var(--t2);font-family:'Sora',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s;width:calc(100% - 24px)}
+.new-btn:hover{background:var(--s2);color:var(--t1)}
+.s-lbl{padding:16px 14px 4px;font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.8px;text-transform:uppercase}
+.chat-list{flex:1;overflow-y:auto;padding:4px 8px}
+.chat-list::-webkit-scrollbar{width:0}
+.ci{padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--t2);transition:all .12s;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci:hover,.ci.active{background:var(--s2);color:var(--t1)}
+.s-foot{padding:12px;border-top:1px solid var(--b1)}
+.u-row{display:flex;align-items:center;gap:9px;padding:8px 10px}
+.av{width:28px;height:28px;border-radius:50%;background:var(--b2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--t2)}
+.uname{font-size:13px;font-weight:500}
+.uplan{font-size:11px;color:var(--t3)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:52px;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid var(--b1);gap:8px}
+.mbtn{display:flex;align-items:center;gap:6px;padding:5px 12px;background:transparent;border:1px solid var(--b2);border-radius:7px;color:var(--t1);font-size:13px;font-weight:500}
+.dot{width:7px;height:7px;border-radius:50%;background:#4caf50}
+.tr{margin-left:auto;display:flex;gap:6px}
+.ibtn{width:34px;height:34px;border-radius:7px;background:transparent;border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;color:var(--t2)}
+.ibtn:hover{background:var(--s1);color:var(--t1)}
+.ibtn.ok{border-color:#2a4a2a;color:#4caf50}
+.messages{flex:1;overflow-y:auto;padding:28px 0;display:flex;flex-direction:column}
+.messages::-webkit-scrollbar{width:0}
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:14px;text-align:center}
+.w-icon{width:60px;height:60px;border-radius:16px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;margin-bottom:4px}
+.welcome h1{font-size:21px;font-weight:600;letter-spacing:-.5px}
+.welcome p{font-size:14px;color:var(--t2);max-width:340px;line-height:1.6}
+.sugs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.sug{padding:7px 13px;border:1px solid var(--b2);border-radius:20px;font-size:12.5px;color:var(--t2);cursor:pointer;transition:all .12s;background:transparent;font-family:'Sora',sans-serif}
+.sug:hover{border-color:var(--green);color:var(--t1);background:var(--s1)}
+.mr{padding:12px 24px;display:flex;gap:12px;max-width:800px;width:100%;margin:0 auto;animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.mr.user{flex-direction:row-reverse}
+.mav{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:2px}
+.mav.ai{background:var(--green);color:#fff}
+.mav.usr{background:var(--s2);border:1px solid var(--b2);color:var(--t2)}
+.mc{flex:1}
+.mn{font-size:12px;font-weight:600;color:var(--t3);margin-bottom:5px}
+.mr.user .mn{text-align:right}
+.mt{font-size:14px;line-height:1.7;color:var(--t1);white-space:pre-wrap}
+.mr.user .mt{background:var(--s1);border:1px solid var(--b2);padding:10px 14px;border-radius:12px 4px 12px 12px;display:inline-block;max-width:85%;float:right;clear:both}
+.thinking{display:flex;gap:4px;align-items:center;padding:4px 0}
+.thinking span{width:6px;height:6px;border-radius:50%;background:var(--t3);animation:pu 1.2s ease-in-out infinite}
+.thinking span:nth-child(2){animation-delay:.2s}
+.thinking span:nth-child(3){animation-delay:.4s}
+@keyframes pu{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.input-area{padding:14px 18px 18px;border-top:1px solid var(--b1);max-width:800px;width:100%;margin:0 auto}
+.ibox{background:var(--s1);border:1px solid var(--b2);border-radius:12px;padding:12px 14px}
+.ibox:focus-within{border-color:#3a3a3a}
+.ir{display:flex;align-items:flex-end;gap:10px}
+textarea{flex:1;background:transparent;border:none;outline:none;color:var(--t1);font-family:'Sora',sans-serif;font-size:14px;line-height:1.6;resize:none;max-height:160px;min-height:24px}
+textarea::placeholder{color:var(--t3)}
+.sbtn{width:34px;height:34px;border-radius:8px;background:var(--green);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;flex-shrink:0;color:#fff}
+.sbtn:hover{opacity:.85}
+.sbtn:disabled{background:var(--b2);color:var(--t3);cursor:default}
+.if{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.hint{font-size:11px;color:var(--t3)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:28px;width:420px;max-width:92vw}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:8px}
+.modal p{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px}
+.modal p a{color:var(--green);text-decoration:none}
+.steps{background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;color:var(--t2);line-height:2}
+.steps b{color:var(--t1)}
+.inp-wrap{position:relative;margin-bottom:6px}
+.modal input{width:100%;padding:10px 36px 10px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:8px;color:var(--t1);font-family:'Sora',sans-serif;font-size:13px;outline:none;box-sizing:border-box}
+.modal input:focus{border-color:var(--green)}
+.eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px}
+.status{font-size:11px;color:var(--t3);margin-bottom:14px;min-height:16px}
+.mbtns{display:flex;gap:8px;justify-content:flex-end}
+.btn-c{padding:8px 16px;background:transparent;border:1px solid var(--b2);border-radius:7px;color:var(--t2);font-family:'Sora',sans-serif;font-size:13px;cursor:pointer}
+.btn-s{padding:8px 20px;background:var(--green);border:none;border-radius:7px;color:#fff;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.btn-s:hover{opacity:.85}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="s-head">
+    <div class="logo">S</div>
+    <span class="logo-name">Sfera AI</span>
+  </div>
+  <button class="new-btn" onclick="newChat()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+    Yangi suhbat
+  </button>
+  <div class="s-lbl">Bugun</div>
+  <div class="chat-list" id="chatList">
+    <div class="ci active">Boshlang&#39;ich suhbat</div>
+  </div>
+  <div class="s-foot">
+    <div class="u-row">
+      <div class="av">F</div>
+      <div><div class="uname">Foydalanuvchi</div><div class="uplan">Groq · Bepul</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="mbtn">
+      <div class="dot"></div>
+      Llama 3.3 70B
+    </div>
+    <div class="tr">
+      <button class="ibtn" id="keyBtn" onclick="openModal()" title="API Key">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="welcome" id="welcome">
+      <div class="w-icon">S</div>
+      <h1>Sfera bilan suhbatlashing</h1>
+      <p>Savol bering, g&#39;oyalarni muhokama qiling yoki istalgan mavzuda yordam so&#39;rang.</p>
+      <div class="sugs">
+        <button class="sug" onclick="ask(this)">O&#39;zbek tarixi haqida</button>
+        <button class="sug" onclick="ask(this)">Kod yozishda yordam</button>
+        <button class="sug" onclick="ask(this)">Ingliz tilini o&#39;rgatib ber</button>
+        <button class="sug" onclick="ask(this)">Matematika masalasi</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="ibox">
+      <div class="ir">
+        <textarea id="inp" placeholder="Xabar yozing..." rows="1" onkeydown="hk(event)" oninput="rs(this)"></textarea>
+        <button class="sbtn" id="sbtn" onclick="send()" disabled>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="if">
+        <span style="font-size:11px;color:var(--t3)">Powered by Groq (Bepul · Tez)</span>
+        <span class="hint">Enter — yuborish</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2>🔑 Groq API Key</h2>
+    <p>Mutlaqo <b>bepul</b> — kredit karta shart emas!<br>
+    Kuniga <b>14,400 so'rov</b> — limitdan tashvishlanmang.</p>
+    <div class="steps">
+      <b>1.</b> <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> ga kiring<br>
+      <b>2.</b> Google bilan ro&#39;yxatdan o&#39;ting<br>
+      <b>3.</b> <b>"Create API Key"</b> → nusxalang<br>
+      <b>4.</b> Pastga joylashtiring
+    </div>
+    <div class="inp-wrap">
+      <input type="password" id="keyInp" placeholder="gsk_..." onkeydown="if(event.key==='Enter')saveKey()">
+      <button class="eye" onclick="toggleEye()">👁</button>
+    </div>
+    <div class="status" id="keyStatus"></div>
+    <div class="mbtns">
+      <button class="btn-c" onclick="closeModal()">Bekor</button>
+      <button class="btn-s" onclick="saveKey()">Saqlash ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var MODEL = 'llama-3.3-70b-versatile';
+var SYSTEM = "Sen Sfera nomli aqlli yordamchisan. Foydalanuvchi qaysi tilda yozsa, o'sha tilda javob ber. Aniq va foydali javob ber.";
+var KEY_NAME = 'sfera_groq_key';
+var msgs = [];
+var busy = false;
+
+var inp = document.getElementById('inp');
+var sbtn = document.getElementById('sbtn');
+var msgsDiv = document.getElementById('messages');
+var welcome = document.getElementById('welcome');
+
+inp.addEventListener('input', function(){ sbtn.disabled = !inp.value.trim() || busy; });
+
+function rs(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,160)+'px'; }
+function hk(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!sbtn.disabled)send();} }
+function ask(btn){ inp.value=btn.textContent; rs(inp); sbtn.disabled=false; send(); }
+function toggleEye(){
+  var f=document.getElementById('keyInp');
+  f.type=f.type==='password'?'text':'password';
+}
+
+function newChat(){
+  msgs=[];
+  msgsDiv.innerHTML='';
+  msgsDiv.appendChild(welcome);
+  welcome.style.display='flex';
+  inp.value=''; rs(inp); sbtn.disabled=true;
+  var list=document.getElementById('chatList');
+  list.querySelectorAll('.ci').forEach(function(i){i.classList.remove('active');});
+  var item=document.createElement('div');
+  item.className='ci active';
+  item.textContent='Yangi suhbat';
+  list.insertBefore(item,list.firstChild);
+}
+
+function addMsg(role,text){
+  welcome.style.display='none';
+  var row=document.createElement('div');
+  row.className='mr'+(role==='user'?' user':'');
+  var mav=document.createElement('div');
+  mav.className=role==='user'?'mav usr':'mav ai';
+  mav.textContent='S';
+  var mc=document.createElement('div'); mc.className='mc';
+  var mn=document.createElement('div'); mn.className='mn';
+  mn.textContent=role==='user'?'Siz':'Sfera';
+  var mt=document.createElement('div'); mt.className='mt';
+  if(!text&&role==='assistant'){
+    mt.innerHTML='<div class="thinking"><span></span><span></span><span></span></div>';
+  } else {
+    mt.textContent=text;
+  }
+  mc.appendChild(mn); mc.appendChild(mt);
+  row.appendChild(mav); row.appendChild(mc);
+  msgsDiv.appendChild(row);
+  msgsDiv.scrollTop=msgsDiv.scrollHeight;
+  return mt;
+}
+
+async function send(){
+  var text=inp.value.trim();
+  if(!text||busy)return;
+  var key=localStorage.getItem(KEY_NAME);
+  if(!key){openModal();return;}
+
+  busy=true; sbtn.disabled=true;
+  inp.value=''; rs(inp);
+  msgs.push({role:'user',content:text});
+  addMsg('user',text);
+
+  var list=document.getElementById('chatList');
+  var active=list.querySelector('.ci.active');
+  if(active&&(active.textContent==="Boshlang'ich suhbat"||active.textContent==='Yangi suhbat')){
+    active.textContent=text.length>35?text.slice(0,35)+'...':text;
+  }
+
+  var aiDiv=addMsg('assistant','');
+
+  try{
+    var res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+key
+      },
+      body:JSON.stringify({
+        model: MODEL,
+        messages: [{role:'system',content:SYSTEM}].concat(msgs.slice(-20)),
+        max_tokens: 1024,
+        temperature: 0.7
+      })
+    });
+
+    var data=await res.json();
+
+    if(data.error){
+      var msg=data.error.message||JSON.stringify(data.error);
+      if(res.status===401){
+        aiDiv.textContent='❌ API key noto\'g\'ri.\nYangi key kiriting (🔑 tugmasi).\nconsole.groq.com/keys';
+      } else if(res.status===429){
+        aiDiv.textContent='⏳ Vaqtinchalik limit. 1 daqiqa kuting.';
+      } else {
+        aiDiv.textContent='❌ Xato: '+msg;
+      }
+    } else {
+      var reply=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content||'';
+      aiDiv.textContent=reply.trim()||'Bo\'sh javob.';
+      msgs.push({role:'assistant',content:reply});
+    }
+  } catch(e){
+    aiDiv.textContent='❌ Internet xatosi: '+e.message;
+  }
+
+  busy=false;
+  sbtn.disabled=!inp.value.trim();
+  msgsDiv.scrollTop=msgsDiv.scrollHeight;
+}
+
+function openModal(){
+  document.getElementById('overlay').classList.add('open');
+  var ki=document.getElementById('keyInp');
+  var saved=localStorage.getItem(KEY_NAME);
+  if(saved){
+    ki.value=saved;
+    document.getElementById('keyStatus').textContent='Saqlangan: '+saved.slice(0,10)+'...';
+  }
+  setTimeout(function(){ki.focus();},50);
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open');}
+function saveKey(){
+  var v=document.getElementById('keyInp').value.trim();
+  var st=document.getElementById('keyStatus');
+  if(!v){st.textContent='⚠️ Key kiriting!';return;}
+  if(!v.startsWith('gsk_')){st.textContent=' ⚠️ Groq key "gsk_" bilan boshlanadi!';return;}
+  localStorage.setItem(KEY_NAME,v);
+  st.textContent='✅ Saqlandi!';
+  document.getElementById('keyBtn').classList.add('ok');
+  setTimeout(closeModal,700);
+}
+
+if(localStorage.getItem(KEY_NAME)){
+  document.getElementById('keyBtn').classList.add('ok');
+} else {
+  setTimeout(openModal,500);
+}
+</script>
+</body>
+</html>
