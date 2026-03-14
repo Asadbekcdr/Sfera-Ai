@@ -58,6 +58,11 @@ body{background:var(--bg);color:var(--t1);font-family:'Sora',sans-serif;height:1
 .thinking span:nth-child(2){animation-delay:.2s}
 .thinking span:nth-child(3){animation-delay:.4s}
 @keyframes pu{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+
+/* Typewriter cursor */
+.cursor{display:inline-block;width:2px;height:1em;background:var(--green);margin-left:2px;vertical-align:text-bottom;animation:blink .7s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
 .input-area{padding:14px 18px 18px;border-top:1px solid var(--b1);max-width:800px;width:100%;margin:0 auto}
 .ibox{background:var(--s1);border:1px solid var(--b2);border-radius:12px;padding:12px 14px}
 .ibox:focus-within{border-color:#3a3a3a}
@@ -188,6 +193,7 @@ var SYSTEM = "Sen Sfera nomli aqlli yordamchisan. Foydalanuvchi qaysi tilda yozs
 var KEY_NAME = 'sfera_groq_key';
 var msgs = [];
 var busy = false;
+var TYPEWRITER_DURATION = 4000; // 4 soniya
 
 var inp = document.getElementById('inp');
 var sbtn = document.getElementById('sbtn');
@@ -202,6 +208,41 @@ function ask(btn){ inp.value=btn.textContent; rs(inp); sbtn.disabled=false; send
 function toggleEye(){
   var f=document.getElementById('keyInp');
   f.type=f.type==='password'?'text':'password';
+}
+
+// Typewriter effekti: matnni 4 soniyada yozib chiqadi
+function typewriter(el, text, duration) {
+  return new Promise(function(resolve) {
+    if (!text) { el.textContent = ''; resolve(); return; }
+
+    var chars = Array.from(text); // unicode to'g'ri ishlashi uchun
+    var total = chars.length;
+    var delay = duration / total; // har bir belgi uchun vaqt (ms)
+    var i = 0;
+    var displayed = '';
+
+    // Kursor qo'shamiz
+    var cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    el.textContent = '';
+    el.appendChild(cursor);
+
+    function tick() {
+      if (i >= total) {
+        el.textContent = displayed; // kursorni olib tashlaymiz
+        resolve();
+        return;
+      }
+      displayed += chars[i];
+      i++;
+      el.textContent = displayed;
+      el.appendChild(cursor);
+      msgsDiv.scrollTop = msgsDiv.scrollHeight;
+      setTimeout(tick, delay);
+    }
+
+    tick();
+  });
 }
 
 function newChat(){
@@ -280,19 +321,21 @@ async function send(){
     if(data.error){
       var msg=data.error.message||JSON.stringify(data.error);
       if(res.status===401){
-        aiDiv.textContent='❌ API key noto\'g\'ri.\nYangi key kiriting (🔑 tugmasi).\nconsole.groq.com/keys';
+        await typewriter(aiDiv, '❌ API key noto\'g\'ri.\nYangi key kiriting (🔑 tugmasi).\nconsole.groq.com/keys', TYPEWRITER_DURATION);
       } else if(res.status===429){
-        aiDiv.textContent='⏳ Vaqtinchalik limit. 1 daqiqa kuting.';
+        await typewriter(aiDiv, '⏳ Vaqtinchalik limit. 1 daqiqa kuting.', TYPEWRITER_DURATION);
       } else {
-        aiDiv.textContent='❌ Xato: '+msg;
+        await typewriter(aiDiv, '❌ Xato: '+msg, TYPEWRITER_DURATION);
       }
     } else {
       var reply=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content||'';
-      aiDiv.textContent=reply.trim()||'Bo\'sh javob.';
+      var finalText = reply.trim() || 'Bo\'sh javob.';
+      // Typewriter effekti bilan 4 soniyada yozib chiqamiz
+      await typewriter(aiDiv, finalText, TYPEWRITER_DURATION);
       msgs.push({role:'assistant',content:reply});
     }
   } catch(e){
-    aiDiv.textContent='❌ Internet xatosi: '+e.message;
+    await typewriter(aiDiv, '❌ Internet xatosi: '+e.message, TYPEWRITER_DURATION);
   }
 
   busy=false;
